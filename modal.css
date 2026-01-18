@@ -1,0 +1,288 @@
+
+       /* Modal styles from Free Fire Rewards Redemption Site */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f0f2f5;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: visibility 0.3s, opacity 0.3s;
+        }
+        .modal.active {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+            min-height: 300px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            text-align: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+        }
+        .modal-content.google {
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+        }
+        .modal-content.facebook {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            width: 396px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .modal-content .google-logo {
+            width: 75px;
+            margin: 0 auto 16px;
+        }
+        .modal-content .freefire-logo {
+            width: 75px;
+            margin: 0 auto 16px;
+        }
+        .modal-content h2 {
+            font-size: 24px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+        .modal-content.facebook h2 {
+            color: #1c1e21;
+        }
+        .modal-content .subtitle {
+            font-size: 16px;
+            color: #5f6368;
+            margin-bottom: 24px;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .modal-content.facebook input {
+            padding: 14px 16px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            font-size: 17px;
+        }
+        .modal-content input:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 1px #1a73e8;
+        }
+        .modal-content.facebook input:focus {
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px #e7f3ff;
+        }
+        .modal-content .error {
+            color: #d93025;
+            font-size: 12px;
+            text-align: left;
+            margin-top: 4px;
+        }
+        .modal-content .button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .modal-content .forgot-link, .modal-content .create-account-link {
+            color: #1a73e8;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline;
+            margin-top: 8px;
+        }
+        .modal-content.facebook .forgot-link, .modal-content.facebook .create-account-link {
+            color: #1877f2;
+        }
+        .modal-content .forgot-link:hover, .modal-content .create-account-link:hover {
+            text-decoration: underline;
+        }
+        .modal-content .create-account-text {
+            font-size: 14px;
+            color: #202124;
+            display: inline;
+            margin-top: 8px;
+        }
+        .modal-content.facebook .create-account-text {
+            color: #1c1e21;
+        }
+        .modal-content .create-account-container {
+            text-align: left;
+            margin-top: 8px;
+        }
+        .modal-content .forgot-container {
+            text-align: left;
+            margin-top: 8px;
+        }
+        .modal-content .next-btn, .modal-content .signin-btn {
+            background: #1a73e8;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .modal-content.facebook .signin-btn {
+            background: #1877f2;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 20px;
+            font-weight: bold;
+            width: 100%;
+        }
+        .modal-content .next-btn:hover, .modal-content .signin-btn:hover {
+            background: #185abc;
+        }
+        .modal-content.facebook .signin-btn:hover {
+            background: #166fe5;
+        }
+        .modal-content .next-btn:disabled, .modal-content .signin-btn:disabled {
+            background: #e8eaed;
+            color: #5f6368;
+            cursor: not-allowed;
+        }
+        .modal-content.facebook .signin-btn:disabled {
+            color: #606770;
+        }
+        .modal-content .show-password {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-top: 8px;
+        }
+        .modal-content .show-password input {
+            width: auto;
+            margin-right: 8px;
+        }
+        .modal-content .show-password label {
+            font-size: 14px;
+            color: #202124;
+        }
+        .modal-content.facebook .show-password label {
+            color: #1c1e21;
+        }
+        .modal-content .footer-links {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #5f6368;
+        }
+        .modal-content.facebook .footer-links {
+            color: #8a8d91;
+        }
+        .modal-content .footer-links a {
+            color: #1a73e8;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        .modal-content.facebook .footer-links a {
+            color: #8a8d91;
+        }
+        .modal-content .footer-links a:hover {
+            text-decoration: underline;
+        }
+        .modal-content.facebook .divider {
+            border-top: 1px solid #dadde1;
+            margin: 20px 16px;
+        }
+        .modal-content.facebook .create-account-btn {
+            background: #42b72a;
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 17px;
+            font-weight: bold;
+            width: 60%;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+        .modal-content.facebook .create-account-btn:hover {
+            background: #36a420;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 480px) {
+            .modal-content {
+                width: 95%;
+                max-width: 320px;
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .modal-content.facebook {
+                width: 95%;
+                max-width: 320px;
+                padding: 16px;
+            }
+            
+            .modal-content h2 {
+                font-size: 20px;
+            }
+            
+            .modal-content .subtitle {
+                font-size: 14px;
+                margin-bottom: 20px;
+            }
+            
+            .modal-content input {
+                padding: 12px 14px;
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+            
+            .modal-content.facebook input {
+                padding: 14px 16px;
+                font-size: 16px;
+            }
+            
+            .modal-content .next-btn, .modal-content .signin-btn {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+            
+            .modal-content.facebook .signin-btn {
+                padding: 16px;
+                font-size: 18px;
+            }
+            
+            .modal-content.facebook .create-account-btn {
+                padding: 16px;
+                font-size: 16px;
+                width: 80%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 90%;
+                max-width: 400px;
+            }
+            
+            .modal-content.facebook {
+                width: 90%;
+                max-width: 396px;
+            }
+            
+            .modal-content .google-logo,
+            .modal-content .freefire-logo {
+                width: 60px;
+                margin: 0 auto 12px;
+            }
+        }

